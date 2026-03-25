@@ -118,7 +118,11 @@ function applyConfig(c) {
 
   document.title = `${cfg.logo_texto} – Seja uma Empreendedora de Sucesso`;
   document.getElementById('header').style.background = p;
+  if (cfg.hero_banner_imagem) {
+  document.getElementById('hero').style.background = `url(${cfg.hero_banner_imagem}) center/cover no-repeat`;
+} else {
   document.getElementById('hero').style.background = `linear-gradient(135deg,${d} 0%,${p} 40%,${s} 100%)`;
+}
   document.getElementById('ticker').style.background = s;
   document.getElementById('form-card').style.background = d;
   document.getElementById('footer').style.background = p;
