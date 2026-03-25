@@ -31,16 +31,17 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
-    const { base64, mimeType } = await readBody(req);
+    const { base64, mimeType, key } = await readBody(req);
     if (!base64 || !mimeType) return res.status(400).json({ error: 'Dados incompletos' });
     const allowed = ['image/png','image/jpeg','image/jpg','image/gif','image/svg+xml','image/webp'];
     if (!allowed.includes(mimeType)) return res.status(400).json({ error: 'Tipo não suportado' });
     const dataUrl = `data:${mimeType};base64,${base64}`;
+    const chave = key || 'logo_imagem';
     try {
-      await sql`INSERT INTO configuracoes (chave, valor) VALUES ('logo_imagem', ${dataUrl}) ON CONFLICT (chave) DO UPDATE SET valor = ${dataUrl}, atualizado_em = NOW()`;
+      await sql`INSERT INTO configuracoes (chave, valor) VALUES (${chave}, ${dataUrl}) ON CONFLICT (chave) DO UPDATE SET valor = ${dataUrl}, atualizado_em = NOW()`;
       return res.status(200).json({ success: true, dataUrl });
     } catch {
-      return res.status(500).json({ error: 'Erro ao salvar logo' });
+      return res.status(500).json({ error: 'Erro ao salvar imagem' });
     }
   }
 

@@ -191,6 +191,20 @@
         <label>Texto em itálico grande (Enter para quebrar linha)</label>
         <textarea class="cfg-textarea" id="cfg-hero_destaque" rows="2"></textarea>
       </div>
+      <div class="cfg-field" style="margin-bottom:0">
+        <label>Imagem de fundo do Banner (opcional — substitui o gradiente de cores)</label>
+        <div class="logo-upload-area">
+          <div id="banner-preview-box" style="width:200px;height:80px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid rgba(201,169,110,0.3);background:linear-gradient(135deg,#E8D5B0,#C9A96E,#A8854A);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;letter-spacing:1px">
+            Sem imagem
+          </div>
+          <div class="logo-actions">
+            <input type="file" id="banner-file-input" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" style="display:none" onchange="handleBannerUpload(this)" />
+            <button class="upload-btn" onclick="document.getElementById('banner-file-input').click()">⬆ Enviar imagem</button>
+            <button class="btn-sm btn-danger" id="btn-remove-banner" style="display:none;font-size:10px" onclick="removeBanner()">✕ Remover imagem</button>
+            <div class="logo-hint">PNG, JPG, WEBP — máx. 3MB<br/>Se não enviar, será usado o gradiente de cores.</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- BENEFÍCIOS -->
@@ -213,7 +227,7 @@ const DEFAULT_CONFIG = {
   logo_texto:'Excelência®', logo_subtexto:'Lingerie', logo_imagem:'',
   cor_primaria:'#C9A96E', cor_secundaria:'#A8854A', cor_destaque:'#E8D5B0',
   hero_titulo:'Seja uma', hero_destaque:'empreendedora\nde sucesso',
-  hero_subtitulo:'com a Excelência Lingerie!',
+  hero_subtitulo:'com a Excelência Lingerie!', hero_banner_imagem:'',
   beneficio_1_titulo:'Variedade de produtos',       beneficio_1_icone:'📦', beneficio_1_imagem:'',
   beneficio_2_titulo:'Flexibilidade de horários',   beneficio_2_icone:'🕐', beneficio_2_imagem:'',
   beneficio_3_titulo:'Alta lucratividade',           beneficio_3_icone:'📈', beneficio_3_imagem:'',
@@ -405,6 +419,8 @@ function buildConfigForm() {
 
   // Logo preview
   updateLogoPreview();
+  // Banner preview
+  updateBannerPreview();
 
   // Cores
   const colorRow = document.getElementById('color-row');
@@ -427,6 +443,43 @@ function buildConfigForm() {
 
   // Benefícios
   buildBenefits();
+}
+
+function updateBannerPreview() {
+  const box = document.getElementById('banner-preview-box');
+  const btnRemove = document.getElementById('btn-remove-banner');
+  if (!box) return;
+  if (config.hero_banner_imagem) {
+    box.innerHTML = `<img src="${config.hero_banner_imagem}" style="width:100%;height:100%;object-fit:cover" />`;
+    if (btnRemove) btnRemove.style.display = 'block';
+  } else {
+    const p = config.cor_primaria, s = config.cor_secundaria, d = config.cor_destaque;
+    box.style.background = `linear-gradient(135deg,${d},${p},${s})`;
+    box.innerHTML = `<span style="font-size:11px;color:#fff;letter-spacing:1px">Sem imagem</span>`;
+    if (btnRemove) btnRemove.style.display = 'none';
+  }
+}
+
+async function handleBannerUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const base64 = await toBase64(file);
+  const res = await fetch('/api/upload-logo', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base64, mimeType: file.type, key: 'hero_banner_imagem' }),
+  });
+  const data = await res.json();
+  if (res.ok) { config.hero_banner_imagem = data.dataUrl; updateBannerPreview(); showSaveMsg('✅ Banner enviado!'); }
+  else alert(data.error || 'Erro ao enviar banner.');
+  input.value = '';
+}
+
+async function removeBanner() {
+  config.hero_banner_imagem = '';
+  await fetch('/api/settings', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ hero_banner_imagem: '' }),
+  });
+  updateBannerPreview();
 }
 
 function updateLogoPreview() {
