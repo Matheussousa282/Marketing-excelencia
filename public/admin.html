@@ -210,7 +210,36 @@
     <!-- BENEFÍCIOS -->
     <div class="cfg-section">
       <h3>✨ Benefícios — Ícone e Texto</h3>
-      <div class="benefit-list" id="benefit-list"></div>
+
+      <div style="margin-bottom:18px;padding:14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px dashed rgba(201,169,110,0.3)">
+        <div id="lbl-modo-benef" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px">Modo de exibição dos benefícios</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+          <label id="modo-cards-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;padding:10px 16px;border-radius:8px;border:1px solid rgba(201,169,110,0.3);background:rgba(255,255,255,0.04)">
+            <input type="radio" name="modo_beneficios" value="cards" id="modo-cards" onchange="toggleModoBenef()" style="accent-color:#C9A96E" />
+            🃏 Cards individuais (ícone + texto)
+          </label>
+          <label id="modo-imagem-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;padding:10px 16px;border-radius:8px;border:1px solid rgba(201,169,110,0.3);background:rgba(255,255,255,0.04)">
+            <input type="radio" name="modo_beneficios" value="imagem" id="modo-imagem" onchange="toggleModoBenef()" style="accent-color:#C9A96E" />
+            🖼️ Imagem completa (PNG, JPG)
+          </label>
+        </div>
+        <div id="beneficios-img-upload" style="display:none">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px">Envie a imagem já pronta com todos os benefícios (ex: arte em fundo preto/dourado)</div>
+          <div class="logo-upload-area">
+            <div id="beneficios-img-preview" style="width:220px;height:110px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid rgba(201,169,110,0.3);background:#1a1209;display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.3)">Sem imagem</div>
+            <div class="logo-actions">
+              <input type="file" id="beneficios-file-input" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none" onchange="handleBeneficiosUpload(this)" />
+              <button class="upload-btn" onclick="document.getElementById('beneficios-file-input').click()">⬆ Enviar imagem</button>
+              <button class="btn-sm btn-danger" id="btn-remove-beneficios" style="display:none;font-size:10px" onclick="removeBeneficiosImg()">✕ Remover imagem</button>
+              <div class="logo-hint">PNG, JPG, WEBP — máx. 3MB</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="beneficios-cards-section">
+        <div class="benefit-list" id="benefit-list"></div>
+      </div>
     </div>
 
   </div>
@@ -234,6 +263,7 @@ const DEFAULT_CONFIG = {
   beneficio_4_titulo:'Receba seus produtos em casa', beneficio_4_icone:'🚚', beneficio_4_imagem:'',
   beneficio_5_titulo:'Marca consolidada',            beneficio_5_icone:'✅', beneficio_5_imagem:'',
   beneficio_6_titulo:'Brindes exclusivos',           beneficio_6_icone:'🎁', beneficio_6_imagem:'',
+  beneficios_imagem:'', beneficios_modo:'cards',
 };
 
 let config = { ...DEFAULT_CONFIG };
@@ -422,6 +452,9 @@ function buildConfigForm() {
   // Banner preview
   updateBannerPreview();
 
+  // Beneficios modo
+  initModoBenef();
+
   // Cores
   const colorRow = document.getElementById('color-row');
   colorRow.innerHTML = [
@@ -462,10 +495,11 @@ function updateBannerPreview() {
 
 async function handleBannerUpload(input) {
   const file = input.files[0]; if (!file) return;
-  const base64 = await toBase64(file);
+  showSaveMsg('⏳ Enviando banner...');
+  const base64 = await compressImage(file);
   const res = await fetch('/api/upload-logo', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ base64, mimeType: file.type }),
+    body: JSON.stringify({ base64, mimeType: 'image/jpeg', key: 'hero_banner_imagem' }),
   });
   const data = await res.json();
   if (res.ok) { config.hero_banner_imagem = data.dataUrl; updateBannerPreview(); showSaveMsg('✅ Banner enviado!'); }
@@ -557,11 +591,11 @@ async function removeImage(i) {
 
 async function handleLogoUpload(input) {
   const file = input.files[0]; if (!file) return;
-  console.log('ENVIANDO LOGO');
-  const base64 = await toBase64(file);
+  showSaveMsg('⏳ Enviando logo...');
+  const base64 = await compressImage(file);
   const res = await fetch('/api/upload-logo', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ base64, mimeType: file.type }),
+    body: JSON.stringify({ base64, mimeType: 'image/jpeg', key: 'logo_imagem' }),
   });
   const data = await res.json();
   if (res.ok) { config.logo_imagem = data.dataUrl; updateLogoPreview(); showSaveMsg('✅ Logo enviada!'); }
@@ -575,28 +609,113 @@ async function removeLogo() {
   updateLogoPreview();
 }
 
+
+// ── BENEFÍCIOS MODO ─────────────────────────────────────────────────────────
+function initModoBenef() {
+  const modo = config.beneficios_modo || 'cards';
+  document.getElementById('modo-cards').checked = modo === 'cards';
+  document.getElementById('modo-imagem').checked = modo === 'imagem';
+  toggleModoBenef();
+  updateBeneficiosImgPreview();
+}
+
+function toggleModoBenef() {
+  const modo = document.querySelector('input[name="modo_beneficios"]:checked')?.value || 'cards';
+  config.beneficios_modo = modo;
+  document.getElementById('beneficios-img-upload').style.display = modo === 'imagem' ? 'block' : 'none';
+  document.getElementById('beneficios-cards-section').style.display = modo === 'cards' ? 'block' : 'none';
+}
+
+function updateBeneficiosImgPreview() {
+  const box = document.getElementById('beneficios-img-preview');
+  const btnRemove = document.getElementById('btn-remove-beneficios');
+  if (!box) return;
+  if (config.beneficios_imagem) {
+    box.innerHTML = `<img src="${config.beneficios_imagem}" style="width:100%;height:100%;object-fit:contain" />`;
+    if (btnRemove) btnRemove.style.display = 'block';
+  } else {
+    box.innerHTML = 'Sem imagem';
+    box.style.color = 'rgba(255,255,255,0.3)';
+    if (btnRemove) btnRemove.style.display = 'none';
+  }
+}
+
+async function handleBeneficiosUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  showSaveMsg('⏳ Enviando imagem...');
+  const base64 = await compressImage(file);
+  const res = await fetch('/api/upload-logo', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base64, mimeType: 'image/jpeg', key: 'beneficios_imagem' }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    config.beneficios_imagem = data.dataUrl;
+    updateBeneficiosImgPreview();
+    showSaveMsg('✅ Imagem enviada!');
+  } else {
+    alert(data.error || 'Erro ao enviar imagem.');
+  }
+  input.value = '';
+}
+
+async function removeBeneficiosImg() {
+  config.beneficios_imagem = '';
+  await fetch('/api/settings', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ beneficios_imagem: '' }),
+  });
+  updateBeneficiosImgPreview();
+}
+
+// ── ICON UPLOAD ──────────────────────────────────────────────────────────────
 async function handleIconUpload(i, input) {
   const file = input.files[0]; if (!file) return;
-  const base64 = await toBase64(file);
+  showSaveMsg('⏳ Enviando ícone...');
+  const base64 = await compressImage(file);
   const res = await fetch('/api/upload-icon', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ beneficioIndex: i, base64, mimeType: file.type }),
+    body: JSON.stringify({ beneficioIndex: i, base64, mimeType: 'image/jpeg' }),
   });
   const data = await res.json();
   if (res.ok) {
     config[`beneficio_${i}_imagem`] = data.dataUrl;
     config[`beneficio_${i}_icone`] = '';
-    buildBenefits();
-  } else alert(data.error || 'Erro ao fazer upload.');
+    document.getElementById(`icon-wrap-${i}`).innerHTML =
+      `<img src="${data.dataUrl}" alt="" style="width:100%;height:100%;object-fit:contain"/><button class="icon-remove" onclick="removeImage(${i})">✕</button>`;
+    showSaveMsg('✅ Ícone enviado!');
+  } else {
+    alert(data.error || 'Erro ao enviar ícone.');
+  }
   input.value = '';
 }
 
-function toBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = rej;
-    r.readAsDataURL(file);
+async function compressImage(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = e => {
+      img.src = e.target.result;
+    };
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+
+      const maxWidth = 1200;
+      const scale = maxWidth / img.width;
+
+      canvas.width = maxWidth;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const base64 = canvas.toDataURL('image/jpeg', 0.7);
+      resolve(base64.split(',')[1]);
+    };
+
+    reader.readAsDataURL(file);
   });
 }
 

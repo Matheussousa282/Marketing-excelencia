@@ -44,11 +44,11 @@ module.exports = async (req, res) => {
     const sql = getDb();
 
     await sql`
-      INSERT INTO configuracoes (chave, valor)
-      VALUES (${chave}, ${dataUrl})
-      ON CONFLICT (chave)
-      DO UPDATE SET valor = ${dataUrl}, atualizado_em = NOW()
-    `;
+  INSERT INTO configuracoes (chave, valor)
+  VALUES (${chave}, ${dataUrl})
+  ON CONFLICT (chave)
+  DO UPDATE SET valor = ${dataUrl}, atualizado_em = NOW()
+`;
 
     return res.status(200).json({ success: true, dataUrl });
   } catch {
