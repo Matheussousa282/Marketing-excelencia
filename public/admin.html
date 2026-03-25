@@ -465,7 +465,7 @@ async function handleBannerUpload(input) {
   const base64 = await toBase64(file);
   const res = await fetch('/api/upload-logo', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ base64, mimeType: file.type, key: 'hero_banner_imagem' }),
+    body: JSON.stringify({ base64, mimeType: file.type }),
   });
   const data = await res.json();
   if (res.ok) { config.hero_banner_imagem = data.dataUrl; updateBannerPreview(); showSaveMsg('✅ Banner enviado!'); }
@@ -557,6 +557,7 @@ async function removeImage(i) {
 
 async function handleLogoUpload(input) {
   const file = input.files[0]; if (!file) return;
+  console.log('ENVIANDO LOGO');
   const base64 = await toBase64(file);
   const res = await fetch('/api/upload-logo', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },

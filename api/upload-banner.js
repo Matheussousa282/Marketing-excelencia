@@ -1,0 +1,1 @@
+const chave = 'hero_banner_imagem';
