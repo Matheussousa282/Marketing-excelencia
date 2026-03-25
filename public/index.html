@@ -49,7 +49,24 @@
     .tick-item{color:#fff;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:12px}
     @keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
     .content{max-width:1100px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:1fr 400px;gap:64px;align-items:start}
-    @media(max-width:768px){.content{grid-template-columns:1fr;gap:40px}.hero{padding:40px 24px;justify-content:center;min-height:clamp(400px,60vw,520px);background-position:top center!important}}
+    @media(max-width:768px){
+      .content{grid-template-columns:1fr;gap:40px}
+      .hero{
+        padding:40px 16px 32px;
+        justify-content:flex-end;
+        align-items:flex-end;
+        min-height:clamp(480px,110vw,640px);
+        background-position:top left!important;
+        background-size:cover!important;
+      }
+      .hero-text{
+        max-width:100%;
+        width:100%;
+        background:linear-gradient(to top, rgba(0,0,0,0.60) 0%, transparent 100%);
+        padding:20px 16px 12px;
+        border-radius:10px;
+      }
+    }
     .why h2{font-family:'Playfair Display',serif;font-size:26px;color:#2C1F0E;margin-bottom:28px}
     .why h2 strong{font-style:italic}
     .features{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -95,7 +112,7 @@
 
 <main class="content">
   <div class="why">
-    <h2>Por que vender <strong id="logo-nome-why"></strong>?</h2>
+    <h2>Por que vender <strong id=""></strong>?</h2>
     <div id="features-cards"><div class="features" id="features"></div></div>
     <div id="features-imagem" style="display:none">
       <img id="beneficios-img" src="" alt="Benefícios" style="width:100%;max-width:560px;height:auto;display:block;border-radius:12px" />
@@ -217,7 +234,7 @@ if (cfg.hero_banner_imagem) {
   if (cfg.hero_banner_imagem) {
     hero.style.backgroundImage = `url(${cfg.hero_banner_imagem})`;
     hero.style.backgroundSize = 'cover';
-    hero.style.backgroundPosition = 'top left';
+    hero.style.backgroundPosition = window.innerWidth <= 768 ? 'top left' : 'top left';
     hero.style.backgroundRepeat = 'no-repeat';
     hero.classList.add('has-banner');
   } else {
