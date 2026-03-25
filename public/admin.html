@@ -606,7 +606,12 @@ async function handleLogoUpload(input) {
 async function removeLogo() {
   config.logo_imagem = '';
   await fetch('/api/upload-logo', { method: 'DELETE' });
+  await fetch('/api/settings', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ logo_imagem: '' }),
+  });
   updateLogoPreview();
+  showSaveMsg('✅ Logo removida!');
 }
 
 

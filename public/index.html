@@ -4,6 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Excelência® – Seja uma Empreendedora de Sucesso</title>
+
+  <!-- Open Graph / WhatsApp / Instagram -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Excelência® Lingerie – Seja uma Empreendedora de Sucesso" />
+  <meta property="og:description" content="Venda Excelência Lingerie e conquiste sua independência financeira! Cadastre-se agora." />
+  <meta property="og:image" content="https://pre-cadastro-excelencia-lingerie.vercel.app/logo.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://pre-cadastro-excelencia-lingerie.vercel.app/" />
+  <meta property="og:site_name" content="Excelência® Lingerie" />
+
+  <!-- WhatsApp usa também estas -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Excelência® Lingerie – Seja uma Empreendedora de Sucesso" />
+  <meta name="twitter:description" content="Venda Excelência Lingerie e conquiste sua independência financeira!" />
+  <meta name="twitter:image" content="https://pre-cadastro-excelencia-lingerie.vercel.app/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -111,7 +127,7 @@
 
 <main class="content">
   <div class="why">
-    <h2>Por que vender Excelência <strong id=""></strong>?</h2>
+    <h2>Por que vender <strong id="logo-nome-why"></strong>?</h2>
     <div id="features-cards"><div class="features" id="features"></div></div>
     <div id="features-imagem" style="display:none">
       <img id="beneficios-img" src="" alt="Benefícios" style="width:100%;max-width:560px;height:auto;display:block;border-radius:12px" />
@@ -163,6 +179,18 @@ function applyConfig(c) {
   const p = cfg.cor_primaria, s = cfg.cor_secundaria, d = cfg.cor_destaque;
 
   document.title = `${cfg.logo_texto} – Seja uma Empreendedora de Sucesso`;
+
+  // Open Graph dinâmico
+  const ogImage = cfg.logo_imagem || cfg.hero_banner_imagem || '';
+  const ogTitle = `${cfg.logo_texto} – Seja uma Empreendedora de Sucesso`;
+  const ogDesc  = `Venda ${cfg.logo_texto} e conquiste sua independência financeira! Cadastre-se agora.`;
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content', ogTitle);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content', ogDesc);
+  document.querySelector('meta[property="og:image"]')?.setAttribute('content', ogImage);
+  document.querySelector('meta[property="og:url"]')?.setAttribute('content', window.location.href);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', ogTitle);
+  document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', ogDesc);
+  document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', ogImage);
   document.getElementById('header').style.background = p;
   const hero = document.getElementById('hero');
 
