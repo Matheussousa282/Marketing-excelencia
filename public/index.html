@@ -13,25 +13,28 @@
     .logo span{font-size:11px;display:block;letter-spacing:8px;font-family:'Lato',sans-serif;font-weight:300}
     .logo-img{height:48px;max-width:220px;object-fit:contain}
     .hero{
-  min-height: clamp(400px, 70vh, 700px);
+  min-height: clamp(520px, 80vh, 820px);
   display:flex;
   align-items:center;
   justify-content:flex-end;
   padding:60px 8% 60px 50%;
   position:relative;
   overflow:hidden;
-
   background-size:cover;
-  background-position:center;
+  background-position:top center;
   background-repeat:no-repeat;
+}
+    .hero.has-banner{
+  background-position:top left;
+  background-size:cover;
 }
     .hero::before{
   content:'';
   position:absolute;
   inset:0;
   background:
-    linear-gradient(to right, rgba(0,0,0,0.55), rgba(0,0,0,0.1)),
-    radial-gradient(ellipse at 30% 50%,rgba(255,255,255,0.08) 0%,transparent 60%);
+    linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.0) 55%),
+    linear-gradient(to top, rgba(0,0,0,0.2) 0%, transparent 40%);
 }
     .hero-text{
   text-align:center;
@@ -46,7 +49,7 @@
     .tick-item{color:#fff;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:12px}
     @keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
     .content{max-width:1100px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:1fr 400px;gap:64px;align-items:start}
-    @media(max-width:768px){.content{grid-template-columns:1fr;gap:40px}.hero{padding:40px 24px;justify-content:center}}
+    @media(max-width:768px){.content{grid-template-columns:1fr;gap:40px}.hero{padding:40px 24px;justify-content:center;min-height:clamp(400px,60vw,520px);background-position:top center!important}}
     .why h2{font-family:'Playfair Display',serif;font-size:26px;color:#2C1F0E;margin-bottom:28px}
     .why h2 strong{font-style:italic}
     .features{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -214,10 +217,15 @@ if (cfg.hero_banner_imagem) {
   if (cfg.hero_banner_imagem) {
     hero.style.backgroundImage = `url(${cfg.hero_banner_imagem})`;
     hero.style.backgroundSize = 'cover';
-    hero.style.backgroundPosition = 'center';
+    hero.style.backgroundPosition = 'top left';
+    hero.style.backgroundRepeat = 'no-repeat';
+    hero.classList.add('has-banner');
   } else {
     hero.style.backgroundImage = '';
+    hero.style.backgroundPosition = '';
+    hero.style.backgroundSize = '';
     hero.style.background = `linear-gradient(135deg,${d} 0%,${p} 40%,${s} 100%)`;
+    hero.classList.remove('has-banner');
   }
 }
 
