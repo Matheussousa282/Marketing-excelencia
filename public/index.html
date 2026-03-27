@@ -85,7 +85,7 @@
     .why h2{font-family:'Playfair Display',serif;font-size:26px;color:#2C1F0E;margin-bottom:28px}
     .why h2 strong{font-style:italic}
     .features{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .feature{display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border-radius:50px;border:none;transition:transform .2s,box-shadow .2s}
+    .feature{display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border-radius:50px;border:1px solid #E8D5B0;transition:transform .2s,box-shadow .2s}
     .feature:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.08)}
     .feat-icon{width:46px;height:46px;min-width:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:22px}
     .feat-icon img{width:60%;height:60%;object-fit:contain}
@@ -234,7 +234,7 @@ if (cfg.hero_banner_imagem) {
     .field input:focus{border-color:${s}!important}
     .btn-submit{background:${s}}
     .feat-icon{background:linear-gradient(135deg,${d},${p})}
-    .feature{border:none}
+    .feature{border-color:${d}}
   `;
 
   // Logo why
@@ -245,6 +245,10 @@ if (cfg.hero_banner_imagem) {
   const modo = cfg.beneficios_modo || 'cards';
   document.getElementById('features-cards').style.display = modo === 'cards' ? '' : 'none';
   document.getElementById('features-imagem').style.display = modo === 'imagem' ? '' : 'none';
+  // Remove borda dos cards quando modo imagem
+  let featStyle = document.getElementById('feat-border-style');
+  if (!featStyle) { featStyle = document.createElement('style'); featStyle.id = 'feat-border-style'; document.head.appendChild(featStyle); }
+  featStyle.textContent = modo === 'imagem' ? '.feature{border:none!important}' : '';
 
   if (modo === 'imagem' && cfg.beneficios_imagem) {
     document.getElementById('beneficios-img').src = cfg.beneficios_imagem;
