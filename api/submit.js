@@ -17,6 +17,21 @@ async function initDb(sql) {
       criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     )
   `;
+
+  // Garante que a constraint de duplicata existe
+  await sql`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'uq_candidato_email_telefone_minuto'
+      ) THEN
+        ALTER TABLE candidatos
+          ADD CONSTRAINT uq_candidato_email_telefone_minuto
+          UNIQUE (email, telefone, date_trunc('minute', criado_em));
+      END IF;
+    END
+    $$
+  `;
 }
 
 function readBody(req) {
@@ -43,10 +58,26 @@ module.exports = async (req, res) => {
   try {
     const sql = getDb();
     await initDb(sql);
+
+    // Verifica se já existe cadastro com mesmo email nos últimos 2 minutos
+    const existente = await sql`
+      SELECT id FROM candidatos
+      WHERE email = ${email}
+        AND criado_em > NOW() - INTERVAL '2 minutes'
+      LIMIT 1
+    `;
+
+    if (existente.length > 0) {
+      // Retorna sucesso silencioso para não confundir o usuário,
+      // mas não duplica o registro
+      return res.status(200).json({ success: true, message: 'Cadastro realizado com sucesso!' });
+    }
+
     await sql`
       INSERT INTO candidatos (nome, telefone, email, estado, cidade, conheceu_evento)
       VALUES (${nome}, ${telefone}, ${email}, ${estado}, ${cidade}, ${conheceu_evento === 'sim'})
     `;
+
     return res.status(200).json({ success: true, message: 'Cadastro realizado com sucesso!' });
   } catch (e) {
     console.error(e);
