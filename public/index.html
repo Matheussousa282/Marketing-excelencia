@@ -27,7 +27,7 @@
     .header{padding:12px 24px;display:flex;align-items:center;justify-content:center}
     .logo{font-family:'Playfair Display',serif;font-size:22px;color:#fff;letter-spacing:4px;text-transform:uppercase;text-align:center}
     .logo span{font-size:11px;display:block;letter-spacing:8px;font-family:'Lato',sans-serif;font-weight:300}
-    .logo-img{height:48px;max-width:220px;object-fit:contain}
+    .logo-img{height:48px;max-width:220px;object-fit:contain;border:none!important;outline:none!important;box-shadow:none!important;border-radius:0!important}
     .hero{
   min-height: clamp(520px, 80vh, 820px);
   display:flex;
@@ -130,7 +130,7 @@
     <h2>Por que vender Excelência <strong id=""></strong>?</h2>
     <div id="features-cards"><div class="features" id="features"></div></div>
     <div id="features-imagem" style="display:none">
-      <img id="beneficios-img" src="" alt="Benefícios" style="width:100%;max-width:560px;height:auto;display:block;" />
+      <img id="beneficios-img" src="" alt="Benefícios" style="width:100%;max-width:560px;height:auto;display:block;border:none!important;outline:none!important;box-shadow:none!important;border-radius:0!important;" />
     </div>
   </div>
 
@@ -209,7 +209,7 @@ if (cfg.hero_banner_imagem) {
     : `<div class="logo">✦ ${cfg.logo_texto}<span>${cfg.logo_subtexto}</span></div>`;
   document.getElementById('logo-header').innerHTML = logoHtml;
   document.getElementById('logo-footer').innerHTML = cfg.logo_imagem
-    ? `<img style="height:60px;max-width:220px;object-fit:contain" src="${cfg.logo_imagem}" alt="${cfg.logo_texto}" />`
+    ? `<img style="height:60px;max-width:220px;object-fit:contain;border:none!important;outline:none!important;box-shadow:none!important;border-radius:0!important" src="${cfg.logo_imagem}" alt="${cfg.logo_texto}" />`
     : logoHtml;
 
   // Hero
